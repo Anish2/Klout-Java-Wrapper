@@ -127,7 +127,7 @@ public class User {
 			JsonNode jo = arr.get(i);
 			Topic temp = new Topic(jo.getStringValue("id"), jo.getStringValue("displayName"), jo.getStringValue("name"),
 					jo.getStringValue("slug"), jo.getStringValue("imageUrl"), jo.getStringValue("displayType"),
-					jo.getStringValue("topictype"));
+					jo.getStringValue("topicType"));
 			t[i] = temp;
 		}
 
