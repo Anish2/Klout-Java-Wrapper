@@ -5,8 +5,8 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import argo.jdom.JdomParser;
+import argo.jdom.JsonRootNode;
 
 
 /**
@@ -59,11 +59,10 @@ public class Klout {
 		else
 			content = getContentBody("http://api.klout.com/v2/identity.json/"+type+"/"+id+"?key="+api_key);
 		
-		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(content);
-		JSONObject jsonObject = (JSONObject) obj;
+		JdomParser parser = new JdomParser();
+		JsonRootNode stuff = parser.parse(content);
 		
-		return new String[] {(String) jsonObject.get("id"), (String) jsonObject.get("network")};
+		return new String[] {stuff.getStringValue("id"), stuff.getStringValue("network")};
 	}
 	
 	

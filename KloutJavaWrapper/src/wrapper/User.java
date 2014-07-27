@@ -4,10 +4,11 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
+import argo.jdom.JdomParser;
+import argo.jdom.JsonNode;
+import argo.jdom.JsonRootNode;
 
 
 /**
@@ -38,19 +39,19 @@ public class User {
 	public User(String id, String api_key) throws Exception {
 		String content = getContentBody("http://api.klout.com/v2/user.json/"+id+"?key="+api_key);
 		this.api_key = api_key;
-		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(content);
-		JSONObject jsonObject = (JSONObject) obj;
+		
+		JdomParser parser = new JdomParser();
+		JsonRootNode stuff = parser.parse(content);
 
 		// real parsing starts
-		kloutId = (String) jsonObject.get("kloutId");
-		nick = (String) jsonObject.get("nick");
-		score = (double) ((JSONObject) jsonObject.get("score")).get("score");
-		bucket = (String) ((JSONObject) jsonObject.get("score")).get("bucket");
+		kloutId = stuff.getStringValue("kloutId");
+		nick = stuff.getStringValue("nick");
+		score = Double.parseDouble(stuff.getNode("score").getNumberValue("score"));
+		bucket = stuff.getNode("score").getStringValue("bucket");
 
-		dayChange = (double) ((JSONObject) jsonObject.get("scoreDeltas")).get("dayChange");
-		weekChange = (double) ((JSONObject) jsonObject.get("scoreDeltas")).get("weekChange");
-		monthChange = (double) ((JSONObject) jsonObject.get("scoreDeltas")).get("monthChange");
+		dayChange = Double.parseDouble(stuff.getNode("scoreDeltas").getNumberValue("dayChange"));
+		weekChange = Double.parseDouble(stuff.getNode("scoreDeltas").getNumberValue("weekChange"));
+		monthChange = Double.parseDouble(stuff.getNode("scoreDeltas").getNumberValue("monthChange"));
 	}
 
 	/**
@@ -117,18 +118,16 @@ public class User {
 	public Topic[] getTopics() throws Exception {
 		String content = getContentBody("http://api.klout.com/v2/user.json/"+kloutId+"/topics?key="+api_key);
 
-		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(content);
-
-		JSONArray arr = (JSONArray) obj;
+		JdomParser parser = new JdomParser();
+		List<JsonNode> arr = parser.parse(content).getArrayNode();
 
 		Topic[] t = new Topic[arr.size()];
 
 		for (int i = 0; i < arr.size(); i++) {
-			JSONObject jo = (JSONObject) arr.get(i);
-			Topic temp = new Topic((String) jo.get("id"), (String) jo.get("displayName"), (String) jo.get("name"),
-					(String) jo.get("slug"), (String) jo.get("imageUrl"), (String) jo.get("displayType"),
-					(String) jo.get("topicType"));
+			JsonNode jo = arr.get(i);
+			Topic temp = new Topic(jo.getStringValue("id"), jo.getStringValue("displayName"), jo.getStringValue("name"),
+					jo.getStringValue("slug"), jo.getStringValue("imageUrl"), jo.getStringValue("displayType"),
+					jo.getStringValue("topictype"));
 			t[i] = temp;
 		}
 
@@ -145,15 +144,16 @@ public class User {
 	public User[] getInfluencers() throws Exception {
 		String content = getContentBody("http://api.klout.com/v2/user.json/"+kloutId+"/influence?key="+api_key);
 
-		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(content);
-
-		JSONArray arr = (JSONArray) ((JSONObject) obj).get("myInfluencers");
+		JdomParser parser = new JdomParser();
+		JsonNode stuff = parser.parse(content);
+		
+		List<JsonNode> arr = stuff.getArrayNode("myInfluencers");
 
 		User[] users = new User[arr.size()];
 
 		for (int i = 0; i < arr.size(); i++) {
-			String id = (String) ((JSONObject)((JSONObject)arr.get(i)).get("entity")).get("id");
+			JsonNode ent = arr.get(i).getNode("entity");
+			String id = ent.getStringValue("id");
 			User temp = new User(id, api_key);
 			users[i] = temp;
 		}
@@ -169,15 +169,16 @@ public class User {
 	public User[] getInfluencees() throws Exception {
 		String content = getContentBody("http://api.klout.com/v2/user.json/"+kloutId+"/influence?key="+api_key);
 
-		JSONParser parser = new JSONParser();
-		Object obj = parser.parse(content);
-
-		JSONArray arr = (JSONArray) ((JSONObject) obj).get("myInfluencees");
+		JdomParser parser = new JdomParser();
+		JsonNode stuff = parser.parse(content);
+		
+		List<JsonNode> arr = stuff.getArrayNode("myInfluencees");
 
 		User[] users = new User[arr.size()];
 
 		for (int i = 0; i < arr.size(); i++) {
-			String id = (String) ((JSONObject)((JSONObject)arr.get(i)).get("entity")).get("id");
+			JsonNode ent = arr.get(i).getNode("entity");
+			String id = ent.getStringValue("id");
 			User temp = new User(id, api_key);
 			users[i] = temp;
 		}
