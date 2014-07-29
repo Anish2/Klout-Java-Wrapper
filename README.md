@@ -3,7 +3,7 @@ Klout Java Wrapper
 
 Klout Java Wrapper is an interface for the Klout API.
 
-In order to use the API you need to first acquire an API key for the Klout website (http://developer.klout.com/member/register).
+In order to use the API you need to first acquire an API key from the Klout website (http://developer.klout.com/member/register).
 
 
 How to Install it
